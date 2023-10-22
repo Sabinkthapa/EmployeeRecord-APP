@@ -6,12 +6,12 @@ INSERT INTO departments (name) VALUES
 ("Marketing department"),
 ("Customer service department");
 
-INSERT INTO roles (job_position,department_id,salary) VALUES
-('HR Manager', 1, 70000),
-('Front End Developer', 2, 80000),
-('Finance officer', 3, 60000),
-('Senior marketing officer', 4, 70000),
-('Receptionist',5,45000);
+INSERT INTO roles (job_position,salary,department_id) VALUES
+('HR Manager',70000,1),
+('Front End Developer',80000,2),
+('Finance officer',60000,3),
+('Senior marketing officer',70000,4),
+('Receptionist',45000,5);
 
 
 INSERT INTO employees (first_name, last_name,role_id, manager_id) VALUES
