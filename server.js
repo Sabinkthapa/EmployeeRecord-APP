@@ -21,7 +21,6 @@ async function MainPrompts() {
             ],
         }
     ]);
-
         switch (choice) {
                 case 'View all departments':
                      ViewAllDepartments();
@@ -44,9 +43,9 @@ async function MainPrompts() {
                 case 'Update an employee role':
                      UpdateEmployeeRole();
                     break;
-                case "Logout":
+                case 'logout':
                     dbconnection.end();
-                    console.log('Thank you');
+                    console.log('logging out from the application');
                     break;
         }
     };
@@ -188,13 +187,7 @@ async function MainPrompts() {
     }
     MainPrompts();
   };
-
-  // ADD employee to the database
-  //prompt first name last name
-  //match the role id to the roles database if exist then select from 
-  //list of roles if not create new job postition and check for department the same way 
-  //with prompt to enter the salary as well
-//Function to add an employee to the database
+// Function to add new employee in the database
   const AddEmployee = async () => {
     const { firstName,lastName } = await inquirer.prompt ([
       {
@@ -204,14 +197,14 @@ async function MainPrompts() {
     },
     {
       type:'input',
-      name:'lastname',
+      name:'lastName',
       message:'what is your last name:',
     },
   ]);
   //Fetch roles from database
-  const [roles] = await dbconnection.promise()
+  const [fetchRoles] = await dbconnection.promise()
   .query('SELECT id,job_position FROM roles');
-  const roleChoices =roles.map((role)=>({
+  const roleChoices =fetchRoles.map((role)=>({
     name:role.job_position,
     value:role.id,
   }));
@@ -244,12 +237,12 @@ const rolechoose = await inquirer.prompt (
     ]);
 
     //fetch the department list
-    const[Departments] = await dbconnection
+    const[fetchDepartments] = await dbconnection
     .promise()
     .query('SELECT id,name FROM departments');
 
     //map method to select the array of department list
-    const departmentchoices = Departments.map((dep) => ({
+    const departmentchoices = fetchDepartments.map((dep) => ({
       name:dep.name,
       value:dep.id,
     }));
@@ -316,16 +309,16 @@ const chooseDepartment = await inquirer.prompt({
 
     //For user to choose new manager
     if (managerId===0) {
-      const { managerFirstname ,managerLastName} = await inquirer.prompt ([
+      const { managerFirstname ,managerLastname} = await inquirer.prompt ([
         {
           type: 'input',
-          name: 'managerFirstName',
+          name: 'managerFirstname',
           message: 'Please enter new manager first name:',
 
         },
         {
           type: 'input',
-          name: 'managerLastName',
+          name: 'managerLastname',
           message: 'Please enter new manager last name:',
 
         },
@@ -339,7 +332,7 @@ const chooseDepartment = await inquirer.prompt({
         'INSERT INTO employees (first_name, last_name, role_id) VALUES (?,?,?)',
         [
           managerFirstname,
-          managerLastName,
+          managerLastname,
           roleId,
         ]);
       managerId = newManager.insertId;
@@ -360,6 +353,60 @@ const chooseDepartment = await inquirer.prompt({
     }
     MainPrompts();
 };
+
+//Allows user to update the employee role in the database
+
+const UpdateEmployeeRole = async () => {
+  //fetch employees from the database
+const[fetchemployees] = await dbconnection
+.promise()
+.query(
+  'SELECT id, CONCAT(first_name, " ", last_name) AS fullName FROM employees'
+);
+const employeeChoices = fetchemployees.map((empl) => ({
+name: empl.fullName,
+value: empl.id,
+}));
+
+// Prompt the user to choose an employee to update
+const { employeeId } = await inquirer.prompt({
+  type: 'list',
+  name: 'employeeId',
+  message: 'Which employee do you want to update?',
+  choices: employeeChoices,
+});
+
+//Fetch the list of roles from the database
+const [fetchroles] = await dbconnection
+.promise()
+.query ('SELECT id,job_position FROM roles');
+
+const roleChoices = fetchroles.map((role)=>({
+  name: role.job_position,
+  value: role.id,
+}));
+  // Prompt for new role for selected employee
+  const { roleId } = await inquirer.prompt({
+    type: 'list',
+    name: 'roleId',
+    message: 'Choose a new role for the employee:',
+    choices: roleChoices,
+  });
+  //update employee role and try catch to handle error
+  try {
+    await dbconnection
+      .promise()
+      .query('UPDATE employees SET role_id = ? WHERE id = ?', [
+        roleId,
+        employeeId,
+      ]);
+    console.log('Employee role successfully updated.');
+  } catch (err) {
+    console.log('Error updating the employee role',err);
+  }
+MainPrompts();
+};
+//Call this main function to start the application
 MainPrompts();
 
 
