@@ -1,6 +1,6 @@
 const inquirer =require('inquirer')
 const dbconnection = require('./db/connectiondb.js');
-// require('dotenv').config();
+require('dotenv').config();
 
 //loading prompts for choices
 async function MainPrompts() {
