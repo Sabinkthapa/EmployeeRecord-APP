@@ -1,6 +1,14 @@
 const inquirer =require('inquirer')
-const dbconnection = require('./db/connectiondb.js');
+const mysql = require('mysql2');
+
+// const dbconnection = require('./db/connectiondb.js');
 require('dotenv').config();
+const dbconnection = mysql.createConnection({
+  host: process.env.DB_HOST,       // Use process.env to access the variables
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+});
 
 //loading prompts for choices
 async function MainPrompts() {
