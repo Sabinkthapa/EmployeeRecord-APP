@@ -1,7 +1,7 @@
 const inquirer =require('inquirer')
 const mysql = require('mysql2');
+require('dotenv').config();
 
-// const dbconnection = require('./db/connectiondb.js');
 require('dotenv').config();
 const dbconnection = mysql.createConnection({
   host: process.env.DB_HOST,       // Use process.env to access the variables
